@@ -272,6 +272,40 @@ describe('Scryfall Pipeline', () => {
       expect(faces[1].power).toBe('3');
     });
 
+    it.each(['adventure', 'split', 'flip'])('ingests faces of %s cards, whose text is only on their faces', (layout) => {
+      // Scryfall gives these layouts no top-level oracle_text, mana_cost or power.
+      const card: ScryfallCard = {
+        id: 'scryfall-giant-uuid',
+        oracle_id: 'oracle-giant-001',
+        name: 'Bonecrusher Giant // Stomp',
+        type_line: 'Creature — Giant // Instant — Adventure',
+        layout,
+        card_faces: [
+          {
+            name: 'Bonecrusher Giant',
+            mana_cost: '{2}{R}',
+            type_line: 'Creature — Giant',
+            oracle_text: 'Whenever Bonecrusher Giant becomes the target of a spell, Bonecrusher Giant deals 2 damage to that spell\'s controller.',
+            power: '4',
+            toughness: '3',
+          },
+          {
+            name: 'Stomp',
+            mana_cost: '{1}{R}',
+            type_line: 'Instant — Adventure',
+            oracle_text: 'Damage can\'t be prevented this turn. Stomp deals 2 damage to any target.',
+          },
+        ],
+      };
+
+      const result = ingestCards(db, [card]);
+      expect(result.facesInserted).toBe(2);
+
+      const faces = db.prepare('SELECT * FROM card_faces WHERE card_id = ? ORDER BY face_index').all('oracle-giant-001') as Array<Record<string, unknown>>;
+      expect(faces.map(f => f.name)).toEqual(['Bonecrusher Giant', 'Stomp']);
+      expect(faces[1].oracle_text).toContain('Stomp deals 2 damage');
+    });
+
     it('ingests legalities for each card', () => {
       const result = ingestCards(db, [makeSingleFaceCard()]);
       expect(result.legalitiesInserted).toBe(4);

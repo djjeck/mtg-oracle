@@ -133,14 +133,11 @@ const BATCH_SIZE = 500;
 
 /**
  * Returns true if the card has multiple faces that should be stored separately.
- * Transform/MDFC/adventure/flip cards have card_faces.
+ * Every layout with card_faces counts: double-faced cards, and also split,
+ * adventure and flip cards, whose oracle text exists only on their faces.
  */
 function isMultiFace(card: ScryfallCard): boolean {
-  const multiFaceLayouts = new Set([
-    'transform', 'modal_dfc', 'double_faced_token',
-    'reversible_card', 'art_series',
-  ]);
-  return !!(card.card_faces && card.card_faces.length > 1 && card.layout && multiFaceLayouts.has(card.layout));
+  return !!(card.card_faces && card.card_faces.length > 1);
 }
 
 /**
