@@ -56,6 +56,11 @@ CREATE TABLE IF NOT EXISTS rulings (
   FOREIGN KEY (card_id) REFERENCES cards(id)
 );
 
+-- Case-insensitive name lookups (get_cards resolves a whole decklist at once)
+CREATE INDEX IF NOT EXISTS idx_cards_name ON cards(name COLLATE NOCASE);
+CREATE INDEX IF NOT EXISTS idx_card_faces_name ON card_faces(name COLLATE NOCASE);
+CREATE INDEX IF NOT EXISTS idx_card_faces_card ON card_faces(card_id, face_index);
+
 -- FTS5 virtual table for full-text search
 CREATE VIRTUAL TABLE IF NOT EXISTS cards_fts USING fts5(
   name, type_line, oracle_text,

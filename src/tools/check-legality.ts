@@ -19,7 +19,7 @@ const FORMAT_ALIASES: Record<string, string> = {
   cdh: 'duel',
 };
 
-function resolveFormat(format: string): string {
+export function resolveFormat(format: string): string {
   return FORMAT_ALIASES[format.toLowerCase()] ?? format.toLowerCase();
 }
 

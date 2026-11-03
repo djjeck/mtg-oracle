@@ -11,6 +11,7 @@ const EXPECTED_TOOLS = [
   'find_combos',
   'find_synergies',
   'get_card',
+  'get_cards',
   'get_format_staples',
   'get_glossary',
   'get_keyword',
@@ -41,7 +42,7 @@ describe('createServer', () => {
     expect(client.getServerVersion()).toMatchObject({ name: 'mtg-oracle', version: '1.2.3' });
   });
 
-  it('registers all 14 tools', async () => {
+  it('registers all 15 tools', async () => {
     const { tools } = await client.listTools();
     expect(tools.map((t) => t.name).sort()).toEqual(EXPECTED_TOOLS);
   });

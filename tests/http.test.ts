@@ -40,7 +40,7 @@ describe('HTTP transport', () => {
     const client = await connectClient();
     expect(client.getServerVersion()).toMatchObject({ name: 'mtg-oracle', version: '1.2.3' });
     const { tools } = await client.listTools();
-    expect(tools).toHaveLength(14);
+    expect(tools).toHaveLength(15);
     const result = await client.callTool({ name: 'get_card', arguments: { name: 'Lightning Bolt' } });
     expect(result.content).toEqual([expect.objectContaining({ type: 'text' })]);
     await client.close();
@@ -49,8 +49,8 @@ describe('HTTP transport', () => {
   it('serves independent clients without sessions', async () => {
     const [a, b] = await Promise.all([connectClient(), connectClient()]);
     const [toolsA, toolsB] = await Promise.all([a.listTools(), b.listTools()]);
-    expect(toolsA.tools).toHaveLength(14);
-    expect(toolsB.tools).toHaveLength(14);
+    expect(toolsA.tools).toHaveLength(15);
+    expect(toolsB.tools).toHaveLength(15);
     await Promise.all([a.close(), b.close()]);
   });
 

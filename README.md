@@ -11,7 +11,7 @@
 
 Magic: The Gathering MCP server. Card search, rules lookup, deck analysis, and Commander intelligence.
 
-Provides 14 tools for AI assistants to answer questions about Magic cards, game rules, combos, synergies, and format meta via the [Model Context Protocol](https://modelcontextprotocol.io).
+Provides 15 tools for AI assistants to answer questions about Magic cards, game rules, combos, synergies, and format meta via the [Model Context Protocol](https://modelcontextprotocol.io).
 
 **Not just another Scryfall wrapper.** mtg-oracle downloads card data, comprehensive rules, and combo databases locally into SQLite for fast offline queries, and ships with curated MTG knowledge (archetypes, format primers, commander strategies, mana base guidelines) that makes LLMs genuinely competent at Magic.
 
@@ -118,6 +118,7 @@ With the HTTP transport, `GET /healthz` also reports when each source was last u
 |------|-------------|
 | `search_cards` | Search cards by name, type, color, mana cost, rarity, set, format, or keyword. Full-text search across names, type lines, and oracle text. |
 | `get_card` | Get complete details for a specific card: oracle text, mana cost, type, P/T, rulings, and legality. Fuzzy name matching. |
+| `get_cards` | Get the oracle text of up to 100 cards in one call, such as a whole decklist: cost, type, stats, rules text, and every face of split, adventure and double-faced cards. Optionally adds legality in one format. Compact, so a full deck fits in context. |
 | `get_rulings` | Get official Wizards of the Coast rulings for a card (interactions, edge cases, clarifications). |
 | `check_legality` | Check format legality for one or more cards (up to 50). Covers Commander, Modern, Standard, Legacy, Vintage, and more. |
 | `search_by_mechanic` | Find cards with a specific keyword or mechanic (Flying, Trample, Cascade, etc.). Optionally includes the keyword's rules definition. |

@@ -1,5 +1,5 @@
 /**
- * MCP server definition: registers all 14 tools against a database.
+ * MCP server definition: registers all 15 tools against a database.
  *
  * Kept separate from the transport so that stdio runs one server for the
  * process, while the stateless HTTP transport builds one per request.
@@ -11,6 +11,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 // Tool schemas and handlers
 import { SearchCardsInput, handler as searchCardsHandler } from './tools/search-cards.js';
 import { GetCardInput, handler as getCardHandler } from './tools/get-card.js';
+import { GetCardsInput, handler as getCardsHandler } from './tools/get-cards.js';
 import { GetRulingsInput, handler as getRulingsHandler } from './tools/get-rulings.js';
 import { CheckLegalityInput, handler as checkLegalityHandler } from './tools/check-legality.js';
 import { SearchByMechanicInput, handler as searchByMechanicHandler } from './tools/search-by-mechanic.js';
@@ -28,6 +29,7 @@ import { AnalyzeDeckInput, handler as analyzeDeckHandler } from './tools/analyze
 import {
   formatSearchCards,
   formatGetCard,
+  formatGetCards,
   formatGetRulings,
   formatCheckLegality,
   formatSearchByMechanic,
@@ -74,6 +76,20 @@ export function createServer(db: Database.Database, version: string): McpServer 
         return { content: [{ type: 'text' as const, text: formatGetCard(result) }] };
       } catch (err) {
         return { content: [{ type: 'text' as const, text: `Error getting card: ${err instanceof Error ? err.message : String(err)}` }], isError: true };
+      }
+    },
+  );
+
+  server.tool(
+    'get_cards',
+    'Get the oracle text of many Magic cards in one call: name, mana cost, type, power/toughness or loyalty, rules text, and every face of split, adventure and double-faced cards. Use this instead of repeated get_card calls whenever several cards are involved, such as a decklist or the cards in a discussion; it accepts up to 100 names. Pass a format to also get each card\'s legality in it. Omits prices, rulings and printings; use get_card or get_rulings for those.',
+    GetCardsInput.shape,
+    async (params) => {
+      try {
+        const result = getCardsHandler(db, params);
+        return { content: [{ type: 'text' as const, text: formatGetCards(result) }] };
+      } catch (err) {
+        return { content: [{ type: 'text' as const, text: `Error getting cards: ${err instanceof Error ? err.message : String(err)}` }], isError: true };
       }
     },
   );

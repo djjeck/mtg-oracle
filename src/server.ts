@@ -47,13 +47,13 @@ async function main(): Promise<void> {
       httpServer.once('error', reject);
       httpServer.listen(config.port, config.host, resolve);
     });
-    console.error(`[mtg-oracle] v${version} listening on http://${config.host}:${config.port}/mcp — 14 tools registered`);
+    console.error(`[mtg-oracle] v${version} listening on http://${config.host}:${config.port}/mcp — 15 tools registered`);
     close = () => new Promise((resolve) => httpServer.close(() => resolve()));
   } else {
     const server = createServer(db, version);
     console.error(`[mtg-oracle] v${version} starting on stdio...`);
     await server.connect(new StdioServerTransport());
-    console.error(`[mtg-oracle] Server running — 14 tools registered`);
+    console.error(`[mtg-oracle] Server running — 15 tools registered`);
     close = () => server.close();
   }
 

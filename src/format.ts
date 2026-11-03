@@ -5,6 +5,7 @@
 
 import type { SearchCardsResult } from './tools/search-cards.js';
 import type { GetCardResult, CardDetail } from './tools/get-card.js';
+import type { GetCardsResult } from './tools/get-cards.js';
 import type { GetRulingsResult } from './tools/get-rulings.js';
 import type { CheckLegalityResult } from './tools/check-legality.js';
 import type { SearchByMechanicResult } from './tools/search-by-mechanic.js';
@@ -50,6 +51,52 @@ export function formatGetCard(result: GetCardResult): string {
 
   const card = result.card;
   return formatCardDetail(card);
+}
+
+/**
+ * Compact form for many cards at once: only what play and deckbuilding need
+ * (name, cost, type, stats, rules text), so a whole decklist fits in context.
+ */
+export function formatGetCards(result: GetCardsResult): string {
+  const lines: string[] = [];
+  const count = `${result.cards.length} card${result.cards.length === 1 ? '' : 's'}`;
+  lines.push(result.format ? `# ${count} (${capitalize(result.format)} legality)` : `# ${count}`);
+
+  for (const card of result.cards) {
+    let header = `## ${card.name}${card.mana_cost ? ` ${card.mana_cost}` : ''}`;
+    if (result.format) {
+      header += ` · ${capitalize(result.format)}: ${card.legality ? capitalize(card.legality.replace('_', ' ')) : 'Unknown'}`;
+    }
+    lines.push('', header);
+    // A multi-face card's type line and stats combine its faces', which follow.
+    if (card.faces.length === 0) {
+      lines.push(typeWithStats(card.type_line, card.power, card.toughness, card.loyalty));
+    }
+    if (card.oracle_text) lines.push(card.oracle_text);
+
+    for (const face of card.faces) {
+      lines.push(`### ${face.name}${face.mana_cost ? ` ${face.mana_cost}` : ''}`);
+      lines.push(typeWithStats(face.type_line, face.power, face.toughness, null));
+      if (face.oracle_text) lines.push(face.oracle_text);
+    }
+  }
+
+  if (result.not_found.length > 0) {
+    lines.push('', 'Not found:');
+    for (const missing of result.not_found) {
+      const hint = missing.suggestions.length > 0 ? ` (did you mean: ${missing.suggestions.join(', ')}?)` : '';
+      lines.push(`- "${missing.name}"${hint}`);
+    }
+  }
+
+  return lines.join('\n');
+}
+
+function typeWithStats(typeLine: string | null, power: string | null, toughness: string | null, loyalty: string | null): string {
+  const parts = [typeLine ?? ''];
+  if (power && toughness) parts.push(`${power}/${toughness}`);
+  if (loyalty) parts.push(`Loyalty ${loyalty}`);
+  return parts.filter(Boolean).join(' — ');
 }
 
 function formatCardDetail(card: CardDetail): string {
